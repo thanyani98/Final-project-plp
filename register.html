@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register Page</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="Registration form">
+    <h2>Register</h2>
+
+    <form action="register"  target= "_blank" method="POST">
+
+      <div>
+
+        <label for="Username">User Name:</label>
+        <input type="text" id="Username" placeholder="Username" value="">
+      </div>
+      <div>
+        <label for="email">Email:</label>
+        <input type="email" id="email" placeholder="email" value="">
+      </div>
+      <div>
+        <label for="password">Password:</label>
+        <input type="password" id="password" placeholder="password" value="">
+      </div>  
+      <div>
+        <label for="confirm-password">Confirm Password:</label>
+        <input type="password" id="confirm-password" placeholder="confirm-password" value="">
+      </div>
+      <div class ="remember-me">
+        <input type="checkbox">
+        <span style="color:blue"> I accept Terms and condition</span>
+      </div>
+
+      
+      <button type="submit">Register</button>
+      <p id="auth-msg"></p>
+
+      
+      <div class="Login page">
+        <p>Already have an account?</p> 
+        <a href= "login.html">Login here</a>
+      </div>
+    </form>
+  </div>
+
+  <script>
+
+    async function registerUser() {
+
+        const email = document.getElementById('email').value;
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+
+        try {
+            const response = await fetch('http://localhost:3000/api/register', {
+
+                method: 'POST',
+                headers: { 
+                  'Content-Type': 'application/json'
+                 },
+                body: JSON.stringify({ email, username, password })
+            });
+            const data = await response.json();
+
+            if (!response.ok) {
+              authMsg.textContent = data
+            } else {
+              authMsg.textContent = data
+            }
+
+          
+        } catch (err) {
+            authMsg.textContent = err
+        }
+    }
+  
+</script>
+
+
+</body>
+</html>
