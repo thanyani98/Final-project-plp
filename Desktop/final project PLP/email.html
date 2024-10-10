@@ -3,22 +3,46 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Register Page</title>
+  <title>Forgot Password</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="fogotpassword-container">
-        <h1>forgot password</h1>
-        <form id="forgotpassword-form">
-            <input type="text" id="email Address" placeholder="Enter Email Address" value="">
-            <button type="reset password">Reset Password</button>
-            <div id="message"></div>
-        </form>
+        <h1>Forgot Password</h1>
+        <form id="forgot-password-form" onsubmit="resetPassword(event)">
+            <div>
+              <label for="email-address">Enter Email Address:</label>
+              <input type="email" id="email-address" name="email" placeholder="Enter Email Address" required>
+            </div>
+            <button type="submit">Reset Password</button>
+            <div id="message" aria-live="polite" aria-atomic="true"></div>
+          </form>
 
     <p>Already have an account? <a href="login.html"> Login</a></p>
+    <p>Don't have an account yet? <a href="register.html"> Register Here</a></p>
     
-    <p>Don't have an account yet? <a href= "register.html"> Create Account</a></p> 
         
 </div>
+
+<script>
+    function resetPassword(event) {
+      event.preventDefault(); 
+
+      const emailInput = document.getElementById('email-address').value;
+      const messageDiv = document.getElementById('message');
+
+      if (emailInput) {
+
+        messageDiv.innerHTML = `Please check your inbox to reset your password `;
+        messageDiv.style.color = 'green';
+
+      } else {
+       
+        messageDiv.innerHTML = `Invalid email-address`;
+        messageDiv.style.color = 'red';
+      }
+    }
+  </script>
+
 </body>
 </html>

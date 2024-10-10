@@ -8,78 +8,80 @@
 </head>
 <body>
 
-  <div class="Registration form">
+  <div class="Registration-form">
     <h2>Register</h2>
 
-    <form action="register"  target= "_blank" method="POST">
-
+    <form id="registerForm" onsubmit="registerUser(event)">
       <div>
-
-        <label for="Username">User Name:</label>
-        <input type="text" id="Username" placeholder="Username" value="">
+        <label for="username">User Name:</label>
+        <input type="text" id="username" name="username" placeholder="Username" required>
       </div>
       <div>
         <label for="email">Email:</label>
-        <input type="email" id="email" placeholder="email" value="">
+        <input type="email" id="email" name="email" placeholder="Email" required>
       </div>
       <div>
         <label for="password">Password:</label>
-        <input type="password" id="password" placeholder="password" value="">
+        <input type="password" id="password" name="password" placeholder="Password" required>
       </div>  
       <div>
         <label for="confirm-password">Confirm Password:</label>
-        <input type="password" id="confirm-password" placeholder="confirm-password" value="">
+        <input type="password" id="confirm-password" name="confirm-password" placeholder="Confirm Password" required>
       </div>
-      <div class ="remember-me">
-        <input type="checkbox">
-        <span style="color:blue"> I accept Terms and condition</span>
+      <div class="remember-me">
+        <input type="checkbox" id="terms" required>
+        <label for="terms"><span style="color:blue">I accept Terms and Conditions</span></label>
       </div>
 
-      
       <button type="submit">Register</button>
-      <p id="auth-msg"></p>
+      <p id="auth-msg" aria-live="polite"></p>
 
-      
-      <div class="Login page">
-        <p>Already have an account?</p> 
-        <a href= "login.html">Login here</a>
+      <div class="Login-page">
+        <p>Already have an account? <a href="login.html">Login here</a></p>
       </div>
     </form>
   </div>
 
   <script>
+    async function registerUser(event) {
+      event.preventDefault();
 
-    async function registerUser() {
+      const email = document.getElementById('email').value;
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirm-password').value;
+      const authMsg = document.getElementById('auth-msg');
 
-        const email = document.getElementById('email').value;
-        const username = document.getElementById('username').value;
-        const password = document.getElementById('password').value;
+      if (password !== confirmPassword) {
+        authMsg.textContent = "Passwords do not match";
+        return;
+      }
 
-        try {
-            const response = await fetch('http://localhost:3000/api/register', {
+      try {
+        const response = await fetch('http://localhost:3000/api/register', {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email, username, password })
+        });
+        const data = await response.text();
 
-                method: 'POST',
-                headers: { 
-                  'Content-Type': 'application/json'
-                 },
-                body: JSON.stringify({ email, username, password })
-            });
-            const data = await response.json();
-
-            if (!response.ok) {
-              authMsg.textContent = data
-            } else {
-              authMsg.textContent = data
-            }
-
-          
-        } catch (err) {
-            authMsg.textContent = err
+        if (!response.ok) {
+          authMsg.textContent = data;
+        } else {
+          authMsg.innerHTML = `${data}<br>Registration successful! <a href="login.html">Click here to login</a>`;
+          document.getElementById('registerForm').reset();
+          messageElement.style.color = 'green';
+          window.location.href = 'login.html';
         }
+      } catch (err) {
+        authMsg.textContent = "An error occurred. Please try again.";
+        messageElement.style.color = 'red';
+        console.error(err);
+      }
     }
-  
-</script>
-
+  </script>
 
 </body>
 </html>

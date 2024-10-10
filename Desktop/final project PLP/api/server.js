@@ -1,6 +1,6 @@
 const express = require('express');
 const app = express();
-const mysql2 = require('mysql2'); // Use mysql2 instead of both mysql and mysql2
+const mysql2 = require('mysql2');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
 const dotenv = require('dotenv');
@@ -9,98 +9,107 @@ app.use(express.json());
 app.use(cors());
 dotenv.config();
 
-const db = mysql2.createConnection({
-    host: "localhost",
-    user: "root",
-    password: "Blessing@98",
-    port:'3306',
+const db = mysql2.createPool({
+    host: process.env.DB_HOST || "localhost",
+    user: process.env.DB_USER || "root",
+    password: process.env.DB_PASSWORD || "Blessing@98",
+    port: process.env.DB_PORT || '3306',
+    database: 'eduzone',
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
 });
 
-db.connect((err) => {
+db.query(`CREATE DATABASE IF NOT EXISTS eduzone`, (err) => {
     if (err) {
-        return console.log("Error connecting to MySQL:", err.message);
+        console.log("Error creating database:", err.message);
+        return;
     }
 
-    console.log("Connected to MySQL:", db.threadId);
+    console.log("Database 'eduzone' ensured");
 
-    db.query(`CREATE DATABASE IF NOT EXISTS eduzone`, (err, result) => {
-        if (err) return console.log("Error creating database:", err.message);
+    const createUsersTable = `
+    CREATE TABLE IF NOT EXISTS users (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        email VARCHAR(150) NOT NULL UNIQUE,
+        username VARCHAR(50) NOT NULL,
+        password VARCHAR(250) NOT NULL
+    )`;
 
-        console.log("Database 'eduzone' created or already exists");
-
-        db.changeUser({ database: 'eduzone' }, (err) => {
-            if (err) return console.log("Error selecting database:", err.message);
-
-            const createUsersTable = `
-            CREATE TABLE IF NOT EXISTS users (
-                id INT AUTO_INCREMENT PRIMARY KEY,
-                email VARCHAR(150) NOT NULL UNIQUE,
-                username VARCHAR(50) NOT NULL,
-                password VARCHAR(250) NOT NULL
-            )`;
-
-            db.query(createUsersTable, (err, result) => {
-                if (err) return console.log("Error creating users table:", err.message);
-
-                console.log("Users table created or already exists");
-            });
-        });
+    db.query(createUsersTable, (err) => {
+        if (err) {
+            console.log("Error creating users table:", err.message);
+            return;
+        }
+        console.log("Users table ensured");
     });
 });
 
-app.post('/api/register' , async(req,res) => {
-    try{
-        const users = `SELECT * FROM users WHERE email = ?`
+app.post('/api/register', async (req, res) => {
+    const { email, username, password } = req.body;
 
-        db.query(users, [req.body.email], (err, data) => {
-            if(data.length) return res.status(409).json("User already exists")
-             
-            const salt = bcrypt.genSaltSync(10);
-            const hashedPassword = bcrypt.hashSync(req.body.password, salt)
+    if (!email || !username || !password) {
+        return res.status(400).json("All fields are required");
+    }
 
-            const createUser = `INSERT INTO users(email, username, password ) VALUES (?)`
-            value = [
-                req.body.email,
-                req.body.username,
-                hashedPassword
-            ]
+    try {
 
+        const [existingUsers] = await db.promise().query('SELECT * FROM users WHERE email = ?', [email]);
 
-            db.query(createUser, [value], (err, data) => {
-                if(err) res.status(500).json("something went wrong")
-    
-                    return res.status(200).json("User created successfully");
-           })
+        if (existingUsers.length > 0) {
+            return res.status(409).json("User already exists");
+        }
+
         
-        })
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
 
+        
+        const [result] = await db.promise().query(
+            'INSERT INTO users (email, username, password) VALUES (?, ?, ?)',
+            [email, username, hashedPassword]
+        );
+
+        if (result.affectedRows === 1) {
+            return res.status(201).json("User registered successfully");
+        } else {
+            throw new Error("Failed to insert user");
+        }
+    } catch (err) {
+        console.error("Registration error:", err);
+        res.status(500).json("An error occurred during registration");
     }
-    catch(err){
-        res.status(500).json("Internal Server Error")
+});
+
+app.post('/api/login', async (req, res) => {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+        return res.status(400).json("Email and password are required");
     }
-})
 
-app.post('/api/login', async(req, res) =>{
-    try{
-         const users = `SELECT * FROM users WHERE email = ?`
+    try {
+        const [users] = await db.promise().query('SELECT * FROM users WHERE email = ?', [email]);
 
-         db.query(users, [req.body.email], (err,data) =>{
-            if(data.length === 0) return res.status(404).json("User is not found")
+        if (users.length === 0) {
+            return res.status(404).json("User not found");
+        }
 
-            const isPasswordValid =bcrypt.compareSync(req.body.password, data[0].password)
+        const isPasswordValid = await bcrypt.compare(password, users[0].password);
 
-            if(!isPasswordValid) return res.status(400).json("Invalid Password")
+        if (!isPasswordValid) {
+            return res.status(400).json("Invalid password");
+        }
 
-            return res.status(200).json("Login Successfully")
-         })
+        
+        return res.status(200).json("Login successful");
+    } catch (err) {
+        console.error("Login error:", err);
+        res.status(500).json("An error occurred during login");
     }
-    catch(err) {
-        res.status(500).json("Internal Server Error")
-    }
-})
+});
 
-
-
-app.listen(3000, () => {
-    console.log("Server is running on PORT 3000")
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server is running on PORT ${PORT}`);
 });
