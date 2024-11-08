@@ -1,0 +1,26 @@
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Log out page</title>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+        <div class="logout-message">
+            <h1>Logging out</h1>
+            <p>Thank you...</p>
+        </div>
+
+        <script>
+            localStorage.removeItem('user');
+            sessionStorage.removeItem('user');
+
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 3000);
+        </script>
+
+    </body>
+</html>

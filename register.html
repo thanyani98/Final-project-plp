@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register Page</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="Registration-form">
+    <h2>Register</h2>
+
+    <form id="registerForm" onsubmit="registerUser(event)">
+      <div>
+        <label for="username">User Name:</label>
+        <input type="text" id="username" name="username" placeholder="Username" required>
+      </div>
+      <div>
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" placeholder="Email" required>
+      </div>
+      <div>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" placeholder="Password" required>
+      </div>  
+      <div>
+        <label for="confirm-password">Confirm Password:</label>
+        <input type="password" id="confirm-password" name="confirm-password" placeholder="Confirm Password" required>
+      </div>
+      <div class="remember-me">
+        <input type="checkbox" id="terms" required>
+        <label for="terms"><span style="color:blue">I accept Terms and Conditions</span></label>
+      </div>
+
+      <button type="submit">Register</button>
+      <p id="auth-msg" aria-live="polite"></p>
+
+      <div class="Login-page">
+        <p>Already have an account? <a href="login.html">Login here</a></p>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    async function registerUser(event) {
+      event.preventDefault();
+
+      const email = document.getElementById('email').value;
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirm-password').value;
+      const authMsg = document.getElementById('auth-msg');
+
+      authMsg.textContent = "";
+      authMsg.style.color = 'red';
+
+      if (password !== confirmPassword) {
+        authMsg.textContent = "Passwords do not match";
+        return;
+      }
+
+      try {
+        const response = await fetch('http://localhost:3000/api/register', {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email, username, password })
+        });
+        const data = await response.text();
+
+        if (!response.ok) {
+          authMsg.textContent = data;
+        } else {
+          authMsg.innerHTML = `${data}<br>Registration successful! <a href="login.html">Click here to login</a>`;
+          authMsg.style.color = 'green';
+          document.getElementById('registerForm').reset();
+
+          setTimeout(() => {
+            window.location.href ='login.html';
+          },3000);
+        }
+      } catch (err) {
+        authMsg.textContent = "An error occurred. Please try again.";
+        authMsg.style.color = 'red';
+        console.error(err);
+      }
+    }
+  </script>
+
+</body>
+</html>

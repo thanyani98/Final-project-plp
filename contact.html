@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact page </title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <section id="contact">
+        <h1>Contact us:</h1>
+        </section>
+    </header>
+
+    <section id="contact-details">
+        <p>If you want to get in touch with us, feel free to do so:</p>
+    
+        <form action="submit_form" method="post">
+            <label for="name">Name</label>
+            <input type="text" id="name" name="name" required>
+
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required>
+
+            <label for="message">Message</label>
+            <textarea id="message" id="message" rows="4" required></textarea>
+
+            <button type="submit">Send Message</button>
+
+        </form>
+
+    </section>
+    <footer>
+        <p>please contact us: <a href="mailto:Eduzone.com">info@Eduzone.com</a> | phone: 015 755 6475</p>
+        <p>&copy; 2024 Eduzone. All rights reserved.</p>
+    </footer>
+    <a href="home.html" class="back">Back to home</a>
+</body>
+</html>

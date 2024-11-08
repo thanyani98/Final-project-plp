@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    
+    <div id="login-container">
+        <h1>Login</h1>
+        <form id="login-form" onsubmit="loginUser(event)">
+            <div>
+                <label for="login-email">Email:</label>
+                <input type="email" id="login-email" placeholder="Enter Email" required>
+            </div>
+            <div>
+                <label for="login-password">Password:</label>
+                <input type="password" id="login-password" placeholder="Enter Password" required>
+            </div>
+            <button type="submit">Login</button>
+            <div id="message" aria-live="polite"></div>
+        </form>
+        
+        <div>
+            <p>Don't have an account yet? <a href="register.html">Register here</a></p>
+        </div>
+
+        <div class="forgot-password">
+            <a href="email.html">Forgot your password?</a>
+        </div>
+        
+    </div>
+
+    <script>
+        async function loginUser(event) {
+            event.preventDefault();
+
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const messageElement = document.getElementById('message');
+
+            try {
+                const response = await fetch('http://localhost:3000/api/login', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    messageElement.textContent = data.message;
+                    messageElement.style.color = 'red';
+                } else {
+                    messageElement.textContent = 'Login successful!';
+                    messageElement.style.color = 'green';
+                    window.location.href = 'home.html';
+                }
+            } catch (err) {
+                messageElement.textContent = "An error occurred. Please try again.";
+                messageElement.style.color = 'red';
+                console.error(err);
+            }
+        }
+    </script>
+    
+</body>
+</html>
+
+
+
+
