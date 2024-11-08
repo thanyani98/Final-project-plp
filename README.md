@@ -5,7 +5,7 @@ This is the application where as a parent you will be able to check your child(r
 It has come to my attention that it is so difficult for some parents to find out the important information needed at school because they don't have all the information, their kids are not giving them the letters so having this kind of platform will help parents to get all the information and also monitor their kids behavior
 
 # How to run 
-- Clone the repository: https://github.com/thanyani98/PLP-FINAL-PROJECT-MAY-COHORT.git
+- Clone the repository: https://github.com/thanyani98/Final-project-plp.git
 - cd Eduzone
 - install dependences: npm install
 -then run npm start
